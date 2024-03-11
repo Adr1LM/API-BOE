@@ -4,6 +4,11 @@ package com.paellasoft.CRUD.controller;
 import com.paellasoft.CRUD.entity.Students;
 import com.paellasoft.CRUD.repository.IStudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +24,27 @@ public class StudentController {
     public List<Students> getAllStudents(){
         return IStudentRepository.findAll();
     }
+
+    //Resultados paginados
+    @GetMapping ("/StudentsPage")
+    public Page<Students> getAllStudentsPaginados(){
+        final Pageable pageable = PageRequest.of(0,5);
+        return IStudentRepository.findAll(pageable);
+    }
+
+    //Resultados paginados indicandole parametros (en Postman)
+    @GetMapping ("/StudentsPageNombreAscendente")
+    public Page<Students> getAllStudentsPaginadosNombre(Pageable pageable){
+       // final Pageable pageable = PageRequest.of(0,5, Sort.by(Sort.Direction.ASC));
+        return IStudentRepository.findAll(pageable);
+    }
+
+    @GetMapping ("/StudentsPageVariable")
+    public Page<Students> getAllStudentsVariablePage(@PageableDefault(page=0, size=20)Pageable pageable){
+        return IStudentRepository.findAll(pageable);
+    }
+
+
 
     @PostMapping("/students/new")
     public Students addStudent(@RequestBody Students newstudent){
