@@ -1,13 +1,14 @@
 package com.paellasoft.CRUD.controller;
 
 
+import com.paellasoft.CRUD.entity.Professor;
 import com.paellasoft.CRUD.entity.Students;
 import com.paellasoft.CRUD.repository.IStudentRepository;
+import com.paellasoft.CRUD.service.ServicioStudent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,10 +20,13 @@ import java.util.Optional;
 public class StudentController {
 
     @Autowired
+    public ServicioStudent servicio;
+
+    @Autowired
     private IStudentRepository IStudentRepository;
     @GetMapping ("/Students")
     public List<Students> getAllStudents(){
-        return IStudentRepository.findAll();
+        return servicio.getStudents();
     }
 
     //Resultados paginados
@@ -48,20 +52,13 @@ public class StudentController {
 
     @PostMapping("/students/new")
     public Students addStudent(@RequestBody Students newstudent){
-        return IStudentRepository.save(newstudent);
+        //return IStudentRepository.save(newstudent);
+        return servicio.saveStudent(newstudent);
     }
 
-    @PatchMapping("/students/edit/{id}")
+    @PutMapping("/students/edit/{id}")
     public Students editStudent(@PathVariable Integer id, @RequestBody Students student){
-        Optional<Students> studentsOptional = IStudentRepository.findById(id);
-        if (studentsOptional.isPresent()){
-            Students currentStudent = studentsOptional.get();
-            currentStudent.setName(student.getName());
-            currentStudent.setLastname(student.getLastname());
-            currentStudent.setEmail(student.getEmail());
-            return  IStudentRepository.save(currentStudent);
-        }
-        return null;
+       return servicio.editStudent(id,student);
     }
 
     @GetMapping("/students/{id}")
