@@ -1,6 +1,7 @@
 package com.paellasoft.CRUD.controller;
 
 import com.paellasoft.CRUD.entity.Professor;
+import com.paellasoft.CRUD.entity.Student;
 import com.paellasoft.CRUD.service.Servicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,8 +44,13 @@ public class ProfessorController {
         return servicio.getProfessorById(id);
     }
 
-    @DeleteMapping("/professors/{id}")
+    @DeleteMapping("/professors-delete/{id}")
     public void deleteProfessor(@PathVariable Integer id) {
         servicio.deleteProfessor(id);
+    }
+
+    @PostMapping("/professor/{professorId}/addModulo/{moduloId}")
+    public Professor addModuloToProfessor(@PathVariable Integer professorId, @PathVariable Integer moduloId) {
+        return servicio.addModuloToProfessor(professorId, moduloId);
     }
 }

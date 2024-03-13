@@ -1,7 +1,9 @@
 package com.paellasoft.CRUD.service;
 
+import com.paellasoft.CRUD.entity.Modulo;
 import com.paellasoft.CRUD.entity.Professor;
-import com.paellasoft.CRUD.entity.Students;
+import com.paellasoft.CRUD.entity.Student;
+import com.paellasoft.CRUD.repository.IModuloRepository;
 import com.paellasoft.CRUD.repository.IProfessorRepository;
 import com.paellasoft.CRUD.repository.IStudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +22,25 @@ public class Servicio {
     @Autowired
     private IProfessorRepository IProfessorRepo;
 
-    public Students saveStudent(Students student) {
-        return IStudentrepo.save(student);
+    @Autowired
+    private IModuloRepository IModuloRepo;
+
+
+    @Autowired
+    private IModuloRepository IAsignacionRepo;
+
+
+    public Student saveStudent(Student student) {return IStudentrepo.save(student);
     }
 
-    public List<Students> getStudents() {
+    public List<Student> getStudents() {
         return IStudentrepo.findAll();
     }
 
-    public Students editStudent(Integer id, Students student) {
-        Optional<Students> studentsOptional = IStudentrepo.findById(id);
+    public Student editStudent(Integer id, Student student) {
+        Optional<Student> studentsOptional = IStudentrepo.findById(id);
         if (studentsOptional.isPresent()) {
-            Students currentStudent = studentsOptional.get();
+            Student currentStudent = studentsOptional.get();
             currentStudent.setName(student.getName());
             currentStudent.setLastname(student.getLastname());
             currentStudent.setEmail(student.getEmail());
@@ -40,7 +49,7 @@ public class Servicio {
         return null;
     }
 
-    public Optional<Students> getStudentById(Integer id) {
+    public Optional<Student> getStudentById(Integer id) {
         return IStudentrepo.findById(id);
     }
 
@@ -48,12 +57,12 @@ public class Servicio {
         IStudentrepo.deleteById(id);
     }
 
-    public Page<Students> getAllStudentsPaginados(int page, int size) {
+    public Page<Student> getAllStudentsPaginados(int page, int size) {
         final Pageable pageable = PageRequest.of(page, size);
         return IStudentrepo.findAll(pageable);
     }
 
-
+//--------------------------------- PARTE PROFESSOR ---------------------------------------------
     public Professor saveProfessor(Professor professor) {
         return IProfessorRepo.save(professor);
     }
@@ -88,4 +97,97 @@ public class Servicio {
     }
 
 
+
+
+    //--------------------------------- PARTE MODULO ---------------------------------------------
+
+
+    public Modulo saveModulo(Modulo modulo) {
+        return IModuloRepo.save(modulo);
+    }
+
+    public List<Modulo> getModulos() {
+        return IModuloRepo.findAll();
+    }
+
+    public Modulo editModulo(Integer id, Modulo modulo) {
+        Optional<Modulo> moduloOptional = IModuloRepo.findById(id);
+        if (moduloOptional.isPresent()) {
+            Modulo currentModulo = moduloOptional.get();
+            currentModulo.setName(modulo.getName());
+            currentModulo.setCodModulo(modulo.getCodModulo());
+            return IModuloRepo.save(currentModulo);
+        }
+        return null;
+    }
+
+
+    public Modulo editModuloProfe(Integer idModulo, Integer idProfesor) {
+        // Buscar el módulo por su ID
+        Optional<Modulo> moduloOptional = IModuloRepo.findById(idModulo);
+        if (moduloOptional.isPresent()) {
+            // Buscar el profesor por su ID
+            Optional<Professor> professorOptional = IProfessorRepo.findById(idProfesor);
+            if (professorOptional.isPresent()) {
+                Modulo currentModulo = moduloOptional.get();
+                Professor professor = professorOptional.get();
+                // Asignar el profesor al módulo
+                currentModulo.setProfessor(professor);
+                // Guardar el módulo actualizado en la base de datos
+                return IModuloRepo.save(currentModulo);
+            }
+        }
+        return null; // Retornar null si no se encuentra el módulo o el profesor con los IDs proporcionados
+    }
+
+
+
+
+    public void deleteModulo(Integer codigo) {
+        IModuloRepo.deleteById(codigo);
+    }
+
+
+
+
+    //-------------------- ASIGNACIONES MODULOS ----------------------------------------
+
+
+
+
+
+    public Student addModuloToStudent(Integer studentId, Integer moduloId) {
+        // Obtener el estudiante y el módulo por sus respectivos IDs
+        Student student = IStudentrepo.findById(studentId).orElse(null);
+        Modulo modulo = IModuloRepo.findById(moduloId).orElse(null);
+
+        // Verificar si el estudiante y el módulo existen
+        if (student != null && modulo != null) {
+            // Asignar el módulo al estudiante
+            student.addModulo(modulo);
+            // Guardar el estudiante actualizado en la base de datos
+            IStudentrepo.save(student);
+        }
+
+        return student;
+    }
+
+
+    public Professor addModuloToProfessor(Integer professorId, Integer moduloId) {
+
+
+        // Obtener el estudiante y el módulo por sus respectivos IDs
+        Professor professor = IProfessorRepo.findById(professorId).orElse(null);
+        Modulo modulo = IModuloRepo.findById(moduloId).orElse(null);
+
+        // Verificar si el estudiante y el módulo existen
+        if (professor != null && modulo != null) {
+            // Asignar el módulo al estudiante
+            professor.addModulo(modulo);
+            // Guardar el estudiante actualizado en la base de datos
+            IProfessorRepo.save(professor);
+        }
+
+        return professor;
+    }
 }

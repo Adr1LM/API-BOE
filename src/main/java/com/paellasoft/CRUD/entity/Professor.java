@@ -3,6 +3,8 @@ package com.paellasoft.CRUD.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 
     @Data
     @Entity
@@ -13,7 +15,7 @@ import lombok.Data;
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name="id_professor")
-        private Integer idStudents;
+        private Integer idProfessor;
 
         @Column(name="name")
         private String name;
@@ -23,20 +25,53 @@ import lombok.Data;
         @Column(name="email")
         private String email;
 
+        @Column(name="dni")
+        private String dni;
+
+
+        @OneToMany(cascade =
+                CascadeType.ALL, fetch =
+                FetchType.EAGER,
+                orphanRemoval = true
+                ,mappedBy = "professor")
+        private List<Modulo> modulos;
+
+
+        public void addModulo(Modulo modulo) {
+
+            this.modulos.add(modulo);
+        }
+
+        public Integer getIdProfessor() {
+            return idProfessor;
+        }
+
+        public void setIdProfessor(Integer idProfessor) {
+            this.idProfessor = idProfessor;
+        }
+
+        public List<Modulo> getModulos() {
+            return modulos;
+        }
+
+        public void setModulos(List<Modulo> modulos) {
+            this.modulos = modulos;
+        }
+
+        public String getDni() {
+            return dni;
+        }
+
+        public void setDni(String dni) {
+            this.dni = dni;
+        }
+
         public String getName() {
             return name;
         }
 
         public void setName(String name) {
             this.name = name;
-        }
-
-        public Integer getIdStudents() {
-            return idStudents;
-        }
-
-        public void setIdStudents(Integer idStudents) {
-            this.idStudents = idStudents;
         }
 
 
