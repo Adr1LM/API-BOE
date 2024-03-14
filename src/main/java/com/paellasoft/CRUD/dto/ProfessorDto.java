@@ -8,10 +8,8 @@ public class ProfessorDto implements Serializable {
     private String name;
     private String lastname;
 
-    public ProfessorDto(Integer idProfessor, String name, String lastname) {
-        this.idProfessor = idProfessor;
-        this.name = name;
-        this.lastname = lastname;
+    public ProfessorDto() {
+
     }
 
     public Integer getIdProfessor() {

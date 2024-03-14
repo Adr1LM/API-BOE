@@ -1,5 +1,6 @@
 package com.paellasoft.CRUD.controller;
 
+import com.paellasoft.CRUD.dto.ModuloDto;
 import com.paellasoft.CRUD.entity.Modulo;
 import com.paellasoft.CRUD.service.Servicio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ public class ModuloController {
     private Servicio servicio;
 
     @GetMapping("/modulos")
-    public List<Modulo> getAllModulos() {
+    public List<ModuloDto> getAllModulos() {
         return servicio.getModulos();
     }
 

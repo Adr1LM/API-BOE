@@ -1,0 +1,29 @@
+
+
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/students_db
+    username: root
+    password: Radagon.87
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    protocol: smtp
+    username: alujan.paellasoft@gmail.com
+    password: phcr wvhn mhpv noue
+
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+

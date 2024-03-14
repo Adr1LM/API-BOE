@@ -1,5 +1,6 @@
 package com.paellasoft.CRUD.controller;
 
+import com.paellasoft.CRUD.dto.ProfessorDto;
 import com.paellasoft.CRUD.entity.Professor;
 import com.paellasoft.CRUD.entity.Student;
 import com.paellasoft.CRUD.service.Servicio;
@@ -19,7 +20,7 @@ public class ProfessorController {
     private Servicio servicio;
 
     @GetMapping("/professors")
-    public List<Professor> getAllProfessors() {
+    public List<ProfessorDto> getAllProfessors() {
         return servicio.getProfessors();
     }
 
@@ -49,7 +50,7 @@ public class ProfessorController {
         servicio.deleteProfessor(id);
     }
 
-    @PostMapping("/professor/{professorId}/addModulo/{moduloId}")
+    @PutMapping("/professor/{professorId}/addModulo/{moduloId}")
     public Professor addModuloToProfessor(@PathVariable Integer professorId, @PathVariable Integer moduloId) {
         return servicio.addModuloToProfessor(professorId, moduloId);
     }

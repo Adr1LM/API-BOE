@@ -14,6 +14,9 @@ public class StudentDto implements Serializable {
         this.lastname = lastname;
     }
 
+    public StudentDto() {
+    }
+
     public Integer getIdStudents() {
         return idStudents;
     }

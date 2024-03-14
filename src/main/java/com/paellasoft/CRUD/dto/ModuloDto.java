@@ -6,8 +6,7 @@ public class ModuloDto implements Serializable {
 
     private String name;
 
-    public ModuloDto(String name) {
-        this.name = name;
+    public ModuloDto(){
     }
 
     public String getName() {

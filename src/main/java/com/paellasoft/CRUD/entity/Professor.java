@@ -1,5 +1,6 @@
 package com.paellasoft.CRUD.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -28,7 +29,7 @@ import java.util.List;
         @Column(name="dni")
         private String dni;
 
-
+        @JsonIgnore
         @OneToMany(cascade =
                 CascadeType.ALL, fetch =
                 FetchType.EAGER,

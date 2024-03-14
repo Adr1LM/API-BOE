@@ -1,17 +1,22 @@
 package com.paellasoft.CRUD.service;
 
+import com.paellasoft.CRUD.dto.ModuloDto;
+import com.paellasoft.CRUD.dto.ProfessorDto;
+import com.paellasoft.CRUD.dto.StudentDto;
 import com.paellasoft.CRUD.entity.Modulo;
 import com.paellasoft.CRUD.entity.Professor;
 import com.paellasoft.CRUD.entity.Student;
 import com.paellasoft.CRUD.repository.IModuloRepository;
 import com.paellasoft.CRUD.repository.IProfessorRepository;
 import com.paellasoft.CRUD.repository.IStudentRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,8 +38,16 @@ public class Servicio {
     public Student saveStudent(Student student) {return IStudentrepo.save(student);
     }
 
-    public List<Student> getStudents() {
-        return IStudentrepo.findAll();
+    public List<StudentDto> getStudents() {
+        List<Student> entidades = IStudentrepo.findAll();
+        List<StudentDto> dtos = new ArrayList<>();
+        ModelMapper mapper = new ModelMapper();
+        for(Student student: entidades){
+
+            dtos.add(mapper.map(student, StudentDto.class));
+        }
+
+        return dtos;
     }
 
     public Student editStudent(Integer id, Student student) {
@@ -67,8 +80,16 @@ public class Servicio {
         return IProfessorRepo.save(professor);
     }
 
-    public List<Professor> getProfessors() {
-        return IProfessorRepo.findAll();
+    public List<ProfessorDto> getProfessors() {
+        List<Professor> entidades = IProfessorRepo.findAll();
+        List<ProfessorDto> dtos = new ArrayList<>();
+        ModelMapper mapper = new ModelMapper();
+        for(Professor profe: entidades){
+
+            dtos.add(mapper.map(profe, ProfessorDto.class));
+        }
+
+        return dtos;
     }
 
     public Professor editProfessor(Integer id, Professor professor) {
@@ -106,8 +127,15 @@ public class Servicio {
         return IModuloRepo.save(modulo);
     }
 
-    public List<Modulo> getModulos() {
-        return IModuloRepo.findAll();
+    public List<ModuloDto> getModulos() {
+        List<Modulo> entidades = IModuloRepo.findAll();
+        List<ModuloDto> dtos = new ArrayList<>();
+        ModelMapper mapper  = new ModelMapper();
+        for(Modulo modulo: entidades){
+
+            dtos.add(mapper.map(modulo, ModuloDto.class));
+        }
+        return dtos;
     }
 
     public Modulo editModulo(Integer id, Modulo modulo) {
@@ -176,7 +204,7 @@ public class Servicio {
     public Professor addModuloToProfessor(Integer professorId, Integer moduloId) {
 
 
-        // Obtener el estudiante y el módulo por sus respectivos IDs
+        // Obtener el profe y el módulo por sus respectivos IDs
         Professor professor = IProfessorRepo.findById(professorId).orElse(null);
         Modulo modulo = IModuloRepo.findById(moduloId).orElse(null);
 

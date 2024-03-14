@@ -1,5 +1,6 @@
 package com.paellasoft.CRUD.controller;
 
+import com.paellasoft.CRUD.dto.StudentDto;
 import com.paellasoft.CRUD.entity.Student;
 import com.paellasoft.CRUD.service.Servicio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class StudentController {
     private Servicio servicio;
 
     @GetMapping("/students")
-    public List<Student> getAllStudents() {
+    public List<StudentDto> getAllStudents() {
         return servicio.getStudents();
     }
 
@@ -48,7 +49,7 @@ public class StudentController {
     }
 
 
-    @PostMapping("/students/{studentId}/addModulo/{moduloId}")
+    @PutMapping("/students/{studentId}/addModulo/{moduloId}")
     public Student addModuloToStudent(@PathVariable Integer studentId, @PathVariable Integer moduloId) {
         return servicio.addModuloToStudent(studentId, moduloId);
     }
