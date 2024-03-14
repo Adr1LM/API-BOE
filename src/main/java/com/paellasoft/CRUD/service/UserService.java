@@ -1,6 +1,5 @@
 package com.paellasoft.CRUD.service;
 
-import com.paellasoft.CRUD.entity.Student;
 import com.paellasoft.CRUD.entity.User;
 import com.paellasoft.CRUD.mail.EmailSender;
 import com.paellasoft.CRUD.repository.IUserRepository;
@@ -29,7 +28,7 @@ public class UserService {
         // Envío de correo electrónico de confirmación
         String to = user.getEmail();
         String subject = "Confirmación de registro";
-        String text = "Hola " + user.getName() + ", tu registro ha sido exitoso.";
+        String text = "Hola " + user.getUsername() + ", tu registro ha sido exitoso.";
         emailSender.sendEmail(to, subject, text);
     }
 
