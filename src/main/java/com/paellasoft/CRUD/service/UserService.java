@@ -4,15 +4,16 @@ import com.paellasoft.CRUD.entity.User;
 import com.paellasoft.CRUD.mail.EmailSender;
 import com.paellasoft.CRUD.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UserService {
     @Autowired
     private IUserRepository userRepository;
 
-    private PasswordEncoder passwordEncoder;
+
 
 
     private final EmailSender emailSender;
@@ -32,11 +33,21 @@ public class UserService {
         emailSender.sendEmail(to, subject, text);
     }
 
-    public boolean authenticate(String username, String password) {
+    public User authenticate(String username, String password) {
         User user = userRepository.findByUsername(username);
-        return user != null && passwordEncoder.matches(password, user.getPassword());
+        if (user == null) {
+            return null;
+        }
+        if (password.matches( user.getPassword())) {
+            // Contraseña correcta
+            return user;
+        } else {
+            return null;
+        }
     }
 
 
-
+    public Optional<User> getUserById(Integer id) {
+        return userRepository.findById(id);
+    }
 }

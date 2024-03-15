@@ -6,6 +6,7 @@ spring:
     url: jdbc:mysql://localhost:3306/students_db
     username: root
     password: Radagon.87
+    port: 9090
 
   jpa:
     hibernate:
