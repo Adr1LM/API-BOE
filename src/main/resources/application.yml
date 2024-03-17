@@ -27,4 +27,7 @@ spring:
           starttls:
             enable: true
 
+openai:
+  api:
+    key: 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
 
