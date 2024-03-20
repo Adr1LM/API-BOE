@@ -5,11 +5,14 @@ import com.paellasoft.CRUD.chatGpt.ChatGptResponse;
 import com.paellasoft.CRUD.entity.Boe;
 import com.paellasoft.CRUD.entity.BoeUser;
 import com.paellasoft.CRUD.entity.User;
+import com.paellasoft.CRUD.mail.EmailSender;
 import com.paellasoft.CRUD.repository.IBoeRepository;
 import com.paellasoft.CRUD.repository.IBoeUser;
 import com.paellasoft.CRUD.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 
@@ -18,6 +21,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@Component
 @Transactional
 public class BoeService {
     @Value("${openai.api.key}")
@@ -54,26 +59,23 @@ public class BoeService {
 
     @Autowired
     private IBoeUser boeUserRepo;
+    @Autowired
+    private EmailSender emailSender;
 
 
-
-    @Transactional
+    @Scheduled(cron = "0 * * * * *")
     public String obtenerBoeDelDia() {
 
         // Obtener la fecha actual
         LocalDate fechaActual = LocalDate.now();
-
         // Formatear la fecha en el formato esperado por la URL del BOE
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
         String fechaFormateada = fechaActual.format(formatter);
-
         // Construir la URL del BOE del día actual
         String url = "https://www.boe.es/boe/dias/" + fechaFormateada + "/index.php?s=1";
 
-
         // Crear cliente HTTP
         HttpClient client = HttpClient.newHttpClient();
-
         // Crear solicitud HTTP GET para obtener el BOE
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -87,8 +89,6 @@ public class BoeService {
             if (response.statusCode() == 200) {
                 // Extraer el contenido HTML del BOE
                 String boeContent = response.body();
-
-
                 String htmlContent = response.body();
 
                 // Procesar HTML para extraer texto puro
@@ -98,23 +98,33 @@ public class BoeService {
                 // Resumir el texto utilizando la API de OpenAI
                 String resumen = resumirConChatGpt(textoPuro);
 
-                String fragmentoTexoOriginal = textoPuro.substring(5, 20);
-                String fragmentoTexoResumen = resumen.substring(5, 20);
+                String fragmentoTexoOriginal = textoPuro.substring(5, 40);
+
+                fragmentoTexoOriginal = "hola es una prueba 5: robocop";
+
+                String fragmentoTexoResumen = resumen.substring(5, 40);
 
                 System.out.println(fragmentoTexoOriginal);
                 System.out.println(fragmentoTexoResumen);
                 System.out.println(fechaActual);
                 System.out.println(fechaFormateada);
 
+                //Fecha y hora para registro del Boe
+                DateTimeFormatter formateoRegistro = DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm:ss");
+                LocalDateTime fechaRegistro = LocalDateTime.now();
+                String  fechaBoe =  fechaRegistro.format(formateoRegistro);
+
+                fechaActual.format(formatter);
+                System.out.println(fechaBoe);
 
                 // Crear el objeto Boe
                 Boe boe = new Boe();
                 boe.setContenidoOriginal(fragmentoTexoOriginal);
                 boe.setContenidoResumido(fragmentoTexoResumen);
-                boe.setFechaBoe(fechaActual.toString());
+                boe.setFechaBoe(fechaBoe);
 
-                // Guardar el objeto Boe en la base de datos
-                boeRepository.save(boe);
+                //-------comprobar si ya esta registrado y guardarlo
+                comprobarCambiosEnBoe(boe);
                 return resumen;
 
 
@@ -124,10 +134,50 @@ public class BoeService {
                 return null;
             }
         } catch (Exception e) {
-            // Manejar excepciones de red u otros errores
+
             e.printStackTrace();
             return null;
         }
+    }
+
+
+
+
+    public void comprobarCambiosEnBoe(Boe boe) {
+        //Ultimo Boe registrado
+        Boe ultimoBoe = boeRepository.findTopByOrderByFechaBoeDesc();
+        //comprobar contenido con el obtenido ahora
+        if(boe.getContenidoOriginal().equals(ultimoBoe.getContenidoOriginal())){
+            System.out.println("Este boe ya esta registrado");
+        }else{
+
+            boeRepository.save(boe);
+            // Obtener la lista de usuarios suscritos
+            List<BoeUser> suscriptores = boeUserRepo.findByBoe(ultimoBoe);
+
+
+            if (suscriptores.isEmpty()) {
+                System.out.println("No hay suscriptores para el último Boletín Oficial.");
+            } else {
+                System.out.println("Suscriptores para el último Boletín Oficial:");
+                for (BoeUser suscriptor : suscriptores) {
+                    System.out.println("Usuario: " + suscriptor.getUser().getUsername() + ", Correo: " + suscriptor.getUser().getEmail());
+                }
+            }
+
+            //Enviar mail de notificacion
+            for (BoeUser suscriptor : suscriptores) {
+                User usuario = suscriptor.getUser();
+                String to = usuario.getEmail();
+                String subject = "Nuevo Boletín Oficial disponible";
+                String text = "Estimado " + usuario.getUsername() + ",\n\nSe ha detectado un nuevo Boletín Oficial. Puedes revisarlo en el sitio web.";
+                emailSender.sendEmail(to, subject, text);
+            }
+
+
+
+        }
+
     }
 
     private String extraerTextoPuro(String htmlContent) {
@@ -202,6 +252,9 @@ public class BoeService {
             throw new RuntimeException("El usuario o el Boletín Oficial especificados no existen.");
         }
     }
+
+
+
 
 
 
