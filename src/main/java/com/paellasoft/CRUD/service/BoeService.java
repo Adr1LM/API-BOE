@@ -3,7 +3,11 @@ package com.paellasoft.CRUD.service;
 import com.paellasoft.CRUD.chatGpt.ChatGptRequest;
 import com.paellasoft.CRUD.chatGpt.ChatGptResponse;
 import com.paellasoft.CRUD.entity.Boe;
+import com.paellasoft.CRUD.entity.BoeUser;
+import com.paellasoft.CRUD.entity.User;
 import com.paellasoft.CRUD.repository.IBoeRepository;
+import com.paellasoft.CRUD.repository.IBoeUser;
+import com.paellasoft.CRUD.repository.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,7 +20,9 @@ import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+@Transactional
 public class BoeService {
     @Value("${openai.api.key}")
     private String OPENAI_API_KEY;
@@ -42,6 +49,12 @@ public class BoeService {
     @Autowired
     private IBoeRepository boeRepository;
 
+    @Autowired
+    private IUserRepository userRepository;
+
+    @Autowired
+    private IBoeUser boeUserRepo;
+
 
 
     @Transactional
@@ -55,7 +68,7 @@ public class BoeService {
         String fechaFormateada = fechaActual.format(formatter);
 
         // Construir la URL del BOE del día actual
-        String url = "https://www.boe.es/boe/dias/" + fechaFormateada + "/";
+        String url = "https://www.boe.es/boe/dias/" + fechaFormateada + "/index.php?s=1";
 
 
         // Crear cliente HTTP
@@ -85,15 +98,20 @@ public class BoeService {
                 // Resumir el texto utilizando la API de OpenAI
                 String resumen = resumirConChatGpt(textoPuro);
 
-                String fragmentoTexoOriginal = textoPuro.substring(100, 120);
-                String fragmentoTexoResumen = resumen.substring(100, 120);
+                String fragmentoTexoOriginal = textoPuro.substring(5, 20);
+                String fragmentoTexoResumen = resumen.substring(5, 20);
+
+                System.out.println(fragmentoTexoOriginal);
+                System.out.println(fragmentoTexoResumen);
+                System.out.println(fechaActual);
+                System.out.println(fechaFormateada);
 
 
                 // Crear el objeto Boe
                 Boe boe = new Boe();
                 boe.setContenidoOriginal(fragmentoTexoOriginal);
                 boe.setContenidoResumido(fragmentoTexoResumen);
-                boe.setFechaBoe(fechaActual);
+                boe.setFechaBoe(fechaActual.toString());
 
                 // Guardar el objeto Boe en la base de datos
                 boeRepository.save(boe);
@@ -121,8 +139,8 @@ public class BoeService {
 
         //Elements elementosTexto = doc.select(".sumario");
 
-       // Element elementosTexto = doc.getElementById("sec661");
-       String texto = elementosTexto.text();
+        // Element elementosTexto = doc.getElementById("sec661");
+        String texto = elementosTexto.text();
 
         // Limitar la cantidad de texto extraído
         int maxTokens = 16385; // Establecer el límite máximo de tokens permitidos
@@ -154,5 +172,37 @@ public class BoeService {
             return null;
         }
     }
+
+
+    @Transactional
+    public void suscribirUsuario(Long userId, Long boeId) {
+        // Obtener el usuario y el boletín oficial correspondientes
+        Optional<User> optionalUser = userRepository.findById(userId);
+        Optional<Boe> optionalBoe = boeRepository.findById(boeId);
+
+        // Verificar si el usuario y el boletín oficial existen
+        if (optionalUser.isPresent() && optionalBoe.isPresent()) {
+            User user = optionalUser.get();
+            Boe boe = optionalBoe.get();
+
+            // Verificar si el usuario ya está suscrito al boletín oficial
+            List<Boe> userSubscriptions = user.getSubscribedBoes();
+            if (userSubscriptions.contains(boe)) {
+                throw new RuntimeException("El usuario ya está suscrito a este Boletín Oficial.");
+            }
+
+            // Crear la suscripción del usuario al boletín oficial
+            BoeUser boeUser = new BoeUser();
+            boeUser.setUser(user);
+            boeUser.setBoe(boe);
+
+            // Guardar la suscripción en la base de datos
+            boeUserRepo.save(boeUser);
+        } else {
+            throw new RuntimeException("El usuario o el Boletín Oficial especificados no existen.");
+        }
+    }
+
+
 
 }

@@ -35,7 +35,7 @@ public class AuthController {
     @GetMapping("/resource")
     public ResponseEntity<String> getResource(@RequestHeader("Session-ID") String sessionId) {
         // Verificar la autenticidad del token
-        Optional<User> optionalUser = userService.getUserById(Integer.parseInt(sessionId));
+        Optional<User> optionalUser = Optional.ofNullable(userService.getUserById(Long.parseLong(sessionId)));
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             // Verificar si el ID de sesión coincide con el ID de usuario
