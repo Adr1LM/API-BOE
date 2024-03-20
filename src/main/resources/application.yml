@@ -37,6 +37,6 @@ spring:
 openai:
   model: gpt-3.5-turbo-0125
   api:
-    key:
+    key: poner key aqui
     url: https://api.openai.com/v1/chat/completions
 
