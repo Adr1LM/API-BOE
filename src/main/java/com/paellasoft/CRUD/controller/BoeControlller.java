@@ -45,7 +45,7 @@ public class BoeControlller {
     @PostMapping("/boe/suscribir")
     public ResponseEntity<String> suscribirUsuario(@RequestParam("userId") Long userId, @RequestParam("boeId") Long boeId) {
         try {
-            boeService.suscribirUsuario(userId, boeId);
+            boeService.suscribirUsuario(userId);
             return ResponseEntity.ok("El usuario se ha suscrito correctamente al Boletín Oficial del Estado.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -2,6 +2,8 @@ package com.paellasoft.CRUD.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "boe_user")
 public class BoeUser {
@@ -18,7 +20,25 @@ public class BoeUser {
     @JoinColumn(name = "boe_id")
     private Boe boe;
 
-    // Constructor, getters y setters
+
+    private static  List<User> suscritos;
+
+
+    public BoeUser (){
+        this.suscritos=null;
+
+    }
+
+    public List<User> getSuscritos() {
+        return suscritos;
+    }
+
+    public void setSuscritos(List<User> suscritos) {
+        this.suscritos = suscritos;
+    }
+
+
+// Constructor, getters y setters
 
     public Long getId() {
         return id;

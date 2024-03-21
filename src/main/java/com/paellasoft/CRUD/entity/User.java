@@ -26,10 +26,12 @@ public class User {
     private String password;
 
     @Column
-    private boolean enabled;
+    private boolean sendNotification=false;
 
     @OneToMany(mappedBy = "user")
     private List<BoeUser> subscriptions;
+
+
 
 
     public Long getId() {
@@ -64,12 +66,12 @@ public class User {
         this.password = password;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public boolean isSendNotification() {
+        return sendNotification;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setSendNotification(boolean sendNotification) {
+        this.sendNotification = sendNotification;
     }
 
     public List<BoeUser> getSubscriptions() {
