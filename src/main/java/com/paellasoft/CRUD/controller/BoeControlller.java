@@ -41,6 +41,12 @@ public class BoeControlller {
     }
 
 
+    @DeleteMapping("/boe/delete/all")
+    public void  DeleteALLBoes(){
+        boeService.deleteAllBoes();
+    }
+
+
 
 
 

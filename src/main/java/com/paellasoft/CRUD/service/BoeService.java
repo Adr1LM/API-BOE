@@ -78,64 +78,29 @@ public class BoeService {
         String fechaFormateada = fechaActual.format(formatter);
         // Construir la URL del BOE del día actual
         String url = "https://www.boe.es/boe/dias/" + fechaFormateada + "/index.php?s=1";
-
         // Crear cliente HTTP
         HttpClient client = HttpClient.newHttpClient();
         // Crear solicitud HTTP GET para obtener el BOE
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .build();
-
         try {
             // Enviar solicitud y obtener respuesta
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
             // Verificar si la solicitud fue exitosa (código de estado 200)
             if (response.statusCode() == 200) {
                 // Extraer el contenido HTML del BOE
                 String boeContent = response.body();
                 String htmlContent = response.body();
-
                 // Procesar HTML para extraer texto puro
                 String textoPuro = extraerTextoPuro(htmlContent);
-                System.out.println(textoPuro);
 
-                // Resumir el texto utilizando la API de OpenAI
-                String resumen = resumirConChatGpt(textoPuro);
-
-                String fragmentoTexoOriginal = textoPuro.substring(5, 40);
-
-                fragmentoTexoOriginal = "hola es una prueba 11111";
-
-                String fragmentoTexoResumen = resumen.substring(5, 40);
-
-                System.out.println(fragmentoTexoOriginal);
-                System.out.println(fragmentoTexoResumen);
-                System.out.println(fechaActual);
-                System.out.println(fechaFormateada);
-
-                //Fecha y hora para registro del Boe
-                DateTimeFormatter formateoRegistro = DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm:ss");
-                LocalDateTime fechaRegistro = LocalDateTime.now();
-                String  fechaBoe =  fechaRegistro.format(formateoRegistro);
-
-                fechaActual.format(formatter);
-                System.out.println(fechaBoe);
-
-                // Crear el objeto Boe
-                Boe boe = new Boe();
-                boe.setContenidoOriginal(fragmentoTexoOriginal);
-                boe.setContenidoResumido(fragmentoTexoResumen);
-                boe.setFechaBoe(fechaBoe);
+                //-------comprobar si ya esta registrado el Boe del día
+               comprobarCambiosEnBoe(textoPuro);
 
 
 
-                //-------comprobar si ya esta registrado y guardarlo
-                comprobarCambiosEnBoe(boe);
-
-               //boeRepository.save(boe);
-                return resumen;
-
+                return textoPuro;
 
             } else {
                 // Manejar errores de solicitud HTTP
@@ -152,47 +117,104 @@ public class BoeService {
 
 
 
-    public void comprobarCambiosEnBoe(Boe boe) {
-        //Ultimo Boe registrado
+    public void comprobarCambiosEnBoe(String textoPuro) {
+
+        System.out.println(textoPuro);
+
+        String fragmentoTextoOriginal = textoPuro.substring(5, 40);
+
+        String trampa = "trampa";
+
+        //fragmentoTextoOriginal=trampa;
+
+
+
+       // fragmentoTextoOriginal="trampa";
+
         Boe ultimoBoe = boeRepository.findTopByOrderByFechaBoeDesc();
-        //comprobar contenido con el obtenido ahora
-        if(boe.getContenidoOriginal().equals(ultimoBoe.getContenidoOriginal())){
-            System.out.println("Este boe ya esta registrado");
-        }else{
 
-            boeRepository.save(boe);
-            // Obtener la lista de usuarios suscritos
-            List<BoeUser> suscriptores = boeUserRepo.findAll();
-            for (BoeUser suscriptor : suscriptores) {
+        if(ultimoBoe==null){
 
-                userService.suscribirUsuario(suscriptor.getUser().getId());
+            registrarBoe(textoPuro);
 
-                 }
+            System.out.println("ultimo boe es null");
 
-            if (suscriptores.isEmpty()) {
-                System.out.println("No hay suscriptores para el último Boletín Oficial.");
+        }
+       else {
+
+
+            //comprobar contenido del ultimo boe guardado con el obtenido ahora
+            if (fragmentoTextoOriginal.equals(ultimoBoe.getContenidoOriginal())) {
+                System.out.println("Este boe ya esta registrado");
             } else {
-                System.out.println("Suscriptores para el último Boletín Oficial:");
-                for (BoeUser suscriptor : suscriptores) {
 
-                   // suscribirUsuario(suscriptor.getUser().getId(), ultimoBoe.getId());
-                    System.out.println("Usuario: " + suscriptor.getUser().getUsername() + ", Correo: " + suscriptor.getUser().getEmail());
-                }
+                registrarBoe(textoPuro);
             }
-
-            //Enviar mail de notificacion
-            for (BoeUser suscriptor : suscriptores) {
-                User usuario = suscriptor.getUser();
-                String to = usuario.getEmail();
-                String subject = "Nuevo Boletín Oficial disponible";
-                String text = "Estimado " + usuario.getUsername() + ",\n\nSe ha detectado un nuevo Boletín Oficial. Puedes revisarlo en el sitio web.";
-                emailSender.sendEmail(to, subject, text);
-            }
-
-
 
         }
 
+
+
+    }
+
+
+    private void registrarBoe(String textoPuro){
+
+        try {
+            String resumen = resumirConChatGpt(textoPuro);
+            String fragmentoTextoOriginal = textoPuro.substring(5, 40);
+
+
+            System.out.println(fragmentoTextoOriginal);
+
+            String fragmentoResumen = resumen.substring(5, 40);
+            //Fecha y hora para registro del Boe
+            DateTimeFormatter formateoRegistro = DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm:ss");
+            LocalDateTime fecha = LocalDateTime.now();
+            String fechaRegistro = fecha.format(formateoRegistro);
+
+
+            System.out.println(fragmentoResumen);
+            System.out.println(fechaRegistro);
+
+
+            String trampa = "trampa";
+
+            //fragmentoTextoOriginal=trampa;
+
+            // Crear el objeto Boe
+            Boe boe = new Boe();
+            boe.setContenidoOriginal(fragmentoTextoOriginal);
+            boe.setContenidoResumido(resumen);
+            boe.setFechaBoe(fechaRegistro);
+
+            boeRepository.save(boe);
+
+            notificarSubscriptores(resumen);
+
+
+        }catch (Exception e){
+           e.printStackTrace();
+        }
+
+    }
+
+
+    private void notificarSubscriptores(String resumen){
+
+        List<User> usuarios = userRepository.findAll();
+
+        for(User user:usuarios){
+
+            if(user.isSendNotification()){
+
+                // Envío de correo electrónico de confirmación
+                String to = user.getEmail();
+                String subject = "Confirmación de registro";
+                String text = "Hola " + user.getUsername() + ", hay un nuevo Boe:\n "+resumen;
+                emailSender.sendEmail(to, subject, text);
+            }
+        }
     }
 
     private String extraerTextoPuro(String htmlContent) {
@@ -236,6 +258,10 @@ public class BoeService {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void deleteAllBoes(){
+        boeRepository.deleteAll();
     }
 
 

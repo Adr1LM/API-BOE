@@ -21,7 +21,7 @@ public class Boe {
     private Long id;
     @Column(name = "contenido_original")
     private String contenidoOriginal;
-    @Column(name = "contenido_resumido")
+    @Column(name = "contenido_resumido",columnDefinition = "LONGTEXT")
     private String contenidoResumido;
     @Column(name="fecha_boe")
     private String fechaBoe;
