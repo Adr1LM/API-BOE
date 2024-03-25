@@ -62,6 +62,11 @@ public class BoeService {
     @Autowired
     private EmailSender emailSender;
 
+    @Autowired
+    private UserService userService;
+
+
+
 
     @Scheduled(cron = "0 * * * * *")
     public String obtenerBoeDelDia() {
@@ -123,8 +128,12 @@ public class BoeService {
                 boe.setContenidoResumido(fragmentoTexoResumen);
                 boe.setFechaBoe(fechaBoe);
 
+
+
                 //-------comprobar si ya esta registrado y guardarlo
                 comprobarCambiosEnBoe(boe);
+
+               //boeRepository.save(boe);
                 return resumen;
 
 
@@ -156,7 +165,7 @@ public class BoeService {
             List<BoeUser> suscriptores = boeUserRepo.findAll();
             for (BoeUser suscriptor : suscriptores) {
 
-                suscribirUsuario(suscriptor.getUser().getId(), ultimoBoe.getId());
+                userService.suscribirUsuario(suscriptor.getUser().getId());
 
                  }
 
@@ -230,21 +239,7 @@ public class BoeService {
     }
 
 
-    @Transactional
-    public void suscribirUsuario(Long userId) {
-        // Obtener el usuario y el boletín oficial correspondientes
-        Optional<User> optionalUser = userRepository.findById(userId);
 
-
-        // Verificar si el usuario existe
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setSendNotification(true);
-
-        } else {
-            throw new RuntimeException("El usuario o el Boletín Oficial especificados no existen.");
-        }
-    }
 
 
 

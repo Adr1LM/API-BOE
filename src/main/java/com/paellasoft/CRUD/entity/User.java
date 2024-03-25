@@ -26,7 +26,7 @@ public class User {
     private String password;
 
     @Column
-    private boolean sendNotification=false;
+    private boolean sendNotification;
 
     @OneToMany(mappedBy = "user")
     private List<BoeUser> subscriptions;
