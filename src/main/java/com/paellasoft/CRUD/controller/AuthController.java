@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -26,9 +27,30 @@ public class AuthController {
             // Devolver el ID de sesión en el encabezado de respuesta
             HttpHeaders headers = new HttpHeaders();
             headers.add("Session-ID", sessionId);
+            System.out.println(sessionId); // Imprimir sessionId en la consola
             return new ResponseEntity<>("Login successful", headers, HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestParam("userId") Long userId,
+                                         @RequestHeader("Session-Id") String sessionId) {
+        try {
+            Optional<User> optionalUser = Optional.ofNullable(userService.getUserById(userId));
+            if (optionalUser.isPresent() && Objects.equals(optionalUser.get().getId(), Long.parseLong(sessionId))){
+                System.out.println(sessionId);
+                // Lógica para eliminar la sesión
+                return ResponseEntity.ok("Logout successful");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Unauthorized access");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error during logout");
         }
     }
 

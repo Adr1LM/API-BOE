@@ -31,7 +31,7 @@ import java.util.Optional;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
@@ -114,35 +114,35 @@ public class BoeService {
         }
     }
 
+    public void registrarBoeUser(Boe boe, List<User> usuarios) {
+        // Crear y guardar un objeto BoeUser para cada usuario con sendNotification activo
+        for (User usuario : usuarios) {
+            // Verificar si el usuario tiene sendNotification activo
+            if (usuario.isSendNotification()) {
+                BoeUser boeUser = new BoeUser();
+                boeUser.setBoe(boe);
+                boeUser.setUser(usuario);
+                boeUserRepo.save(boeUser);
+            }
+        }
+    }
+
 
 
 
     public void comprobarCambiosEnBoe(String textoPuro) {
 
         System.out.println(textoPuro);
-
         String fragmentoTextoOriginal = textoPuro.substring(5, 40);
-
-        String trampa = "trampa";
-
+        String trampa = "trampa2";
         //fragmentoTextoOriginal=trampa;
 
-
-
-       // fragmentoTextoOriginal="trampa";
-
         Boe ultimoBoe = boeRepository.findTopByOrderByFechaBoeDesc();
-
         if(ultimoBoe==null){
-
             registrarBoe(textoPuro);
-
             System.out.println("ultimo boe es null");
-
         }
        else {
-
-
             //comprobar contenido del ultimo boe guardado con el obtenido ahora
             if (fragmentoTextoOriginal.equals(ultimoBoe.getContenidoOriginal())) {
                 System.out.println("Este boe ya esta registrado");
@@ -150,11 +150,7 @@ public class BoeService {
 
                 registrarBoe(textoPuro);
             }
-
         }
-
-
-
     }
 
 
@@ -178,7 +174,7 @@ public class BoeService {
             System.out.println(fechaRegistro);
 
 
-            String trampa = "trampa";
+            String trampa = "trampa2";
 
             //fragmentoTextoOriginal=trampa;
 
@@ -191,26 +187,23 @@ public class BoeService {
             boeRepository.save(boe);
 
             notificarSubscriptores(resumen);
+            registrarBoeUser(boe, userRepository.findAll());
 
 
         }catch (Exception e){
            e.printStackTrace();
         }
-
     }
 
 
     private void notificarSubscriptores(String resumen){
 
         List<User> usuarios = userRepository.findAll();
-
         for(User user:usuarios){
-
             if(user.isSendNotification()){
-
                 // Envío de correo electrónico de confirmación
                 String to = user.getEmail();
-                String subject = "Confirmación de registro";
+                String subject = "Nuevo Boe disponible";
                 String text = "Hola " + user.getUsername() + ", hay un nuevo Boe:\n "+resumen;
                 emailSender.sendEmail(to, subject, text);
             }
@@ -233,7 +226,6 @@ public class BoeService {
         int maxTokens = 16385; // Establecer el límite máximo de tokens permitidos
         if (texto.length() > maxTokens) {
             texto = texto.substring(0, maxTokens);    }
-
         return texto;
     }
 

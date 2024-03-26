@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/v1")
 public class UserController {
@@ -22,14 +25,44 @@ public class UserController {
          userService.registerUser(newUser);
     }
 
+
+
     @PostMapping("/user/suscribir")
-    public ResponseEntity<String> suscribirUsuario(@RequestParam("userId") Long userId) {
+    public ResponseEntity<String> suscribirUsuario(@RequestParam("userId") Long userId,
+                                                   @RequestHeader("Session-Id") String sessionId) {
+        System.out.println(sessionId); // Imprimir sessionId en la consola
         try {
-            userService.suscribirUsuario(userId);
-            return ResponseEntity.ok("El usuario se ha suscrito correctamente al Boletín Oficial del Estado.");
+            // Comprobar si el Session-ID es válido
+            Optional<User> optionalUser = Optional.ofNullable(userService.getUserById(Long.parseLong(sessionId)));
+            if (optionalUser.isPresent() && Objects.equals(optionalUser.get().getId(), userId)) {
+                userService.suscribirUsuario(userId);
+                return ResponseEntity.ok("El usuario se ha suscrito correctamente al Boletín Oficial del Estado.");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Unauthorized access");
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al suscribir al usuario al Boletín Oficial del Estado.");
+        }
+    }
+
+
+    @PostMapping("/user/baja")
+    public ResponseEntity<String> darBaja(@RequestParam("userId") Long userId,
+                                          @RequestHeader("Session-Id") String sessionId) {
+        try {
+            Optional<User> optionalUser = Optional.ofNullable(userService.getUserById(userId));
+            if (optionalUser.isPresent() && Objects.equals(optionalUser.get().getId(), Long.parseLong(sessionId))){
+                userService.bajaSubscripcion(userId);
+                return ResponseEntity.ok("El usuario se ha dado de baja correctamente al Boletín Oficial del Estado.");
+            }else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Unauthorized access");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al darse de baja el usuario al Boletín Oficial del Estado.");
         }
     }
 

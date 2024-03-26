@@ -47,7 +47,7 @@ public class UserService {
 
     public User authenticate(String username, String password) {
         User user = userRepository.findByUsername(username);
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+        if (user != null && user.getPassword().matches(password)) {
             return user;
         } else {
             return null;
@@ -59,17 +59,38 @@ public class UserService {
         // Obtener el usuario y el boletín oficial correspondientes
         Optional<User> optionalUser = userRepository.findById(userId);
 
-
         // Verificar si el usuario existe
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setSendNotification(true);
 
+            // Envío de correo electrónico de notificacion
+            String to = user.getEmail();
+            String subject = "Suscripcion";
+            String text = "Hola " + user.getUsername() + ", te has suscrito a Boe Newsletter.";
+            emailSender.sendEmail(to, subject, text);
+
+        } else {
+            throw new RuntimeException("El usuario o el Boletín Oficial especificados no existen.");
+        }
+    }
+
+    @Transactional
+    public void bajaSubscripcion(Long userId) {
+        // Obtener el usuario y el boletín oficial correspondientes
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+
+        // Verificar si el usuario existe
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setSendNotification(false);
+
 
             // Envío de correo electrónico de notificacion
             String to = user.getEmail();
-            String subject = "Confirmación de registro";
-            String text = "Hola " + user.getUsername() + ", te has suscrito a Boe Newsletter.";
+            String subject = "Suscripción";
+            String text = "Hola " + user.getUsername() + ", te has dado de baja del Boe Newsletter.";
             emailSender.sendEmail(to, subject, text);
 
         } else {
