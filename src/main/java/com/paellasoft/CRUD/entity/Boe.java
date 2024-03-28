@@ -17,9 +17,9 @@ import java.util.List;
 public class Boe {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "contenido_original")
+    @Column(name = "contenido_original",columnDefinition = "LONGTEXT")
     private String contenidoOriginal;
     @Column(name = "contenido_resumido",columnDefinition = "LONGTEXT")
     private String contenidoResumido;

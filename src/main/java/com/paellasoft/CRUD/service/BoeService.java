@@ -75,6 +75,7 @@ public class BoeService {
         String fechaFormateada = fechaActual.format(formatter);
         // Construir la URL del BOE del día actual
         String url = "https://www.boe.es/boe/dias/" + fechaFormateada + "/index.php?s=1";
+
         // Crear cliente HTTP
         HttpClient client = HttpClient.newHttpClient();
         // Crear solicitud HTTP GET para obtener el BOE
@@ -130,7 +131,7 @@ public class BoeService {
     public void comprobarCambiosEnBoe(String textoPuro) {
 
         System.out.println(textoPuro);
-        String fragmentoTextoOriginal = textoPuro.substring(5, 40);
+        String fragmentoTextoOriginal = textoPuro.substring(8, 22);
         String trampa = "trampa4"; //trampa para que al comprobar el ultimo boe, sea diferente
        // fragmentoTextoOriginal=trampa;
 
@@ -155,7 +156,7 @@ public class BoeService {
 
         try {
             String resumen = resumirConChatGpt(textoPuro);
-            String fragmentoTextoOriginal = textoPuro.substring(5, 40);
+            String fragmentoTextoOriginal = textoPuro.substring(8, 22);
 
 
             System.out.println(fragmentoTextoOriginal);
@@ -213,11 +214,10 @@ public class BoeService {
 
         // Extraer el texto de todas las etiquetas <p> (párrafos) y <div> (divisiones)
         Element elementosTexto = doc.selectFirst("div.sumario");
-
-        //Elements elementosTexto = doc.select(".sumario");
-
+        Element codigoBoe = doc.selectFirst("div.linkSumario");
         // Element elementosTexto = doc.getElementById("sec661");
-        String texto = elementosTexto.text();
+        String texto = codigoBoe.text()+elementosTexto.text();
+        System.out.println(texto);
 
         // Limitar la cantidad de texto extraído
         int maxTokens = 16385; // Establecer el límite máximo de tokens permitidos
