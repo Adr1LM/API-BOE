@@ -64,6 +64,12 @@ public class Boe {
     }
 
 
+    @Override
+    public String toString() {
+        return "Boe " + fechaBoe.substring(0,10) +"\n"+ contenidoResumido + "\n\n";
+    }
+
+
 
     public List<BoeUser> getSubscriptions() {
         return subscriptions;

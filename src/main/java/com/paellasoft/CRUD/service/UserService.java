@@ -28,6 +28,8 @@ public class UserService {
     public UserService(EmailSender emailSender) {
         this.emailSender = emailSender;
     }
+
+
     public User getUserById(Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
         return optionalUser.orElse(null);

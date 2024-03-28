@@ -1,6 +1,7 @@
 package com.paellasoft.CRUD.controller;
 
 import com.paellasoft.CRUD.entity.User;
+import com.paellasoft.CRUD.service.AuthService;
 import com.paellasoft.CRUD.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,9 @@ import java.util.Optional;
 public class AuthController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AuthService authService;
 
 
     @PostMapping("/login")
@@ -73,9 +77,6 @@ public class AuthController {
             return new ResponseEntity<>("Unauthorized access", HttpStatus.UNAUTHORIZED);
         }
     }
-
-
-
 
 }
 

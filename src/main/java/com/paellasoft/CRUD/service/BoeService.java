@@ -23,10 +23,7 @@ import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -134,8 +131,8 @@ public class BoeService {
 
         System.out.println(textoPuro);
         String fragmentoTextoOriginal = textoPuro.substring(5, 40);
-        String trampa = "trampa2";
-        //fragmentoTextoOriginal=trampa;
+        String trampa = "trampa4"; //trampa para que al comprobar el ultimo boe, sea diferente
+       // fragmentoTextoOriginal=trampa;
 
         Boe ultimoBoe = boeRepository.findTopByOrderByFechaBoeDesc();
         if(ultimoBoe==null){
@@ -165,7 +162,7 @@ public class BoeService {
 
             String fragmentoResumen = resumen.substring(5, 40);
             //Fecha y hora para registro del Boe
-            DateTimeFormatter formateoRegistro = DateTimeFormatter.ofPattern("yyyy/MM/dd hh:mm:ss");
+            DateTimeFormatter formateoRegistro = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDateTime fecha = LocalDateTime.now();
             String fechaRegistro = fecha.format(formateoRegistro);
 
@@ -174,9 +171,9 @@ public class BoeService {
             System.out.println(fechaRegistro);
 
 
-            String trampa = "trampa2";
+            String trampa = "trampa4";
 
-            //fragmentoTextoOriginal=trampa;
+            //fragmentoTextoOriginal=trampa;//trampa para que al comprobar el ultimo boe, sea diferente
 
             // Crear el objeto Boe
             Boe boe = new Boe();
@@ -235,7 +232,7 @@ public class BoeService {
     private String resumirConChatGpt(String texto) {
         try {
             // Crear la solicitud a la API de OpenAI
-            ChatGptRequest request = new ChatGptRequest(model, "Resume a la mitad lo destacable: "+ texto);
+            ChatGptRequest request = new ChatGptRequest(model, "Resume por apartados: "+ texto);
 
             // Realizar la solicitud a la API de OpenAI
             ChatGptResponse response = template.postForObject(apiUrl, request, ChatGptResponse.class);
@@ -253,15 +250,45 @@ public class BoeService {
     }
 
     public void deleteAllBoes(){
+
         boeRepository.deleteAll();
     }
 
 
 
 
+    public void noRecibidos( Long userId) {
+
+        List<Boe> boesNoRecibidos = boeUserRepo.findNotReceivedBoesByUserId(userId);
+        StringBuilder boesAntiguos=new StringBuilder();
+        if(!boesNoRecibidos.isEmpty()) {
+            for(Boe boe:boesNoRecibidos){
+               boesAntiguos.append(boe.toString());
+
+            }
+                User usuario = userService.getUserById(userId);
+
+            // Envío de correo electrónico de confirmación
+            String to = usuario.getEmail();
+            String subject = "Tus BOE no recibidos";
+            String text = "Hola " + usuario.getUsername() + ", tus boes no recibidos:\n " + boesAntiguos;
+            emailSender.sendEmail(to, subject, text);
+        }
 
 
+    }
 
+    public void enviarBoeSolicitado(Long userId, String fechaBoe) {
 
+        Boe boe = boeRepository.findByFechaBoe(fechaBoe);
 
+        User usuario = userService.getUserById(userId);
+
+        // Envío de correo electrónico de confirmación
+        String to = usuario.getEmail();
+        String subject = "Tu Boe solicitado.";
+        String text = "Hola " + usuario.getUsername() + ", tu boe solicitado:\n " + boe.toString();
+        emailSender.sendEmail(to, subject, text);
+
+    }
 }

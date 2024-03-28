@@ -1,8 +1,7 @@
 package com.paellasoft.CRUD.controller;
 
-import com.paellasoft.CRUD.entity.Student;
 import com.paellasoft.CRUD.entity.User;
-import com.paellasoft.CRUD.service.Servicio;
+import com.paellasoft.CRUD.service.AuthService;
 import com.paellasoft.CRUD.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,9 @@ import java.util.Optional;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private AuthService authService;
+
 
 
 
@@ -31,38 +33,39 @@ public class UserController {
     public ResponseEntity<String> suscribirUsuario(@RequestParam("userId") Long userId,
                                                    @RequestHeader("Session-Id") String sessionId) {
         System.out.println(sessionId); // Imprimir sessionId en la consola
+        if (authService.validarSesion(userId, sessionId)){
         try {
-            // Comprobar si el Session-ID es válido
-            Optional<User> optionalUser = Optional.ofNullable(userService.getUserById(Long.parseLong(sessionId)));
-            if (optionalUser.isPresent() && Objects.equals(optionalUser.get().getId(), userId)) {
                 userService.suscribirUsuario(userId);
                 return ResponseEntity.ok("El usuario se ha suscrito correctamente al Boletín Oficial del Estado.");
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Unauthorized access");
-            }
-        } catch (Exception e) {
+            }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al suscribir al usuario al Boletín Oficial del Estado.");
         }
-    }
+        }else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Unauthorized access");
+            }
+        }
+
+
 
 
     @PostMapping("/user/baja")
     public ResponseEntity<String> darBaja(@RequestParam("userId") Long userId,
                                           @RequestHeader("Session-Id") String sessionId) {
+
+        if (authService.validarSesion(userId, sessionId)){
         try {
-            Optional<User> optionalUser = Optional.ofNullable(userService.getUserById(userId));
-            if (optionalUser.isPresent() && Objects.equals(optionalUser.get().getId(), Long.parseLong(sessionId))){
-                userService.bajaSubscripcion(userId);
+             userService.bajaSubscripcion(userId);
                 return ResponseEntity.ok("El usuario se ha dado de baja correctamente al Boletín Oficial del Estado.");
-            }else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Unauthorized access");
-            }
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al darse de baja el usuario al Boletín Oficial del Estado.");
+        }
+        }else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Unauthorized access");
         }
     }
 
@@ -76,6 +79,9 @@ public class UserController {
     public void deleteAllUsers(@RequestParam Long userId){
         userService.deleteAllUser();
     }
+
+
+
 
 
 
