@@ -46,7 +46,7 @@ public class AuthController {
             Optional<User> optionalUser = Optional.ofNullable(userService.getUserById(userId));
             if (optionalUser.isPresent() && Objects.equals(optionalUser.get().getId(), Long.parseLong(sessionId))){
                 System.out.println(sessionId);
-                // Lógica para eliminar la sesión
+
                 return ResponseEntity.ok("Logout successful");
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -60,6 +60,8 @@ public class AuthController {
 
     @GetMapping("/resource")
     public ResponseEntity<String> getResource(@RequestHeader("Session-ID") String sessionId) {
+        //metodo ejemplo para obtener recurso.
+
         // Verificar la autenticidad del token
         Optional<User> optionalUser = Optional.ofNullable(userService.getUserById(Long.parseLong(sessionId)));
         if (optionalUser.isPresent()) {

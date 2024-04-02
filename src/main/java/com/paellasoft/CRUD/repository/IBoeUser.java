@@ -2,12 +2,13 @@ package com.paellasoft.CRUD.repository;
 
 import com.paellasoft.CRUD.entity.Boe;
 import com.paellasoft.CRUD.entity.BoeUser;
+import com.paellasoft.CRUD.repository.custom.ICustomRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface IBoeUser extends JpaRepository<BoeUser, Long> {
+public interface IBoeUser extends JpaRepository<BoeUser, Long>, ICustomRepository{
 
     @Query("SELECT bu.boe FROM BoeUser bu WHERE bu.user.id = :userId")
     List<Boe> findBoesByUserId(Long userId);
@@ -18,4 +19,7 @@ public interface IBoeUser extends JpaRepository<BoeUser, Long> {
 
 
     List<BoeUser> findByBoe(Boe ultimoBoe);
+
+
+
 }

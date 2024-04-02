@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Data
@@ -19,8 +17,8 @@ public class Boe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "contenido_original",columnDefinition = "LONGTEXT")
-    private String contenidoOriginal;
+    @Column(name = "titulo_boe",columnDefinition = "LONGTEXT")
+    private String tituloBoe;
     @Column(name = "contenido_resumido",columnDefinition = "LONGTEXT")
     private String contenidoResumido;
     @Column(name="fecha_boe")
@@ -43,12 +41,12 @@ public class Boe {
         this.id = id;
     }
 
-    public String getContenidoOriginal() {
-        return contenidoOriginal;
+    public String getTituloBoe() {
+        return tituloBoe;
     }
 
-    public void setContenidoOriginal(String contenidoOriginal) {
-        this.contenidoOriginal = contenidoOriginal;
+    public void setTituloBoe(String tituloBoe) {
+        this.tituloBoe = tituloBoe;
     }
 
     public String getContenidoResumido() {

@@ -8,4 +8,6 @@ public interface IBoeRepository extends JpaRepository<Boe, Long> {
     Boe findTopByOrderByFechaBoeDesc();
 
     Boe findByFechaBoe(String fechaBoe);
+
+    Boe findTopByOrderByIdDesc();
 }

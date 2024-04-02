@@ -131,18 +131,25 @@ public class BoeService {
     public void comprobarCambiosEnBoe(String textoPuro) {
 
         System.out.println(textoPuro);
-        String fragmentoTextoOriginal = textoPuro.substring(8, 22);
+        String fragmentoTextoOriginal = textoPuro.substring(8, 21);
+
+        System.out.println("Fragmento original de comprobarCambios: "+fragmentoTextoOriginal);
+
         String trampa = "trampa4"; //trampa para que al comprobar el ultimo boe, sea diferente
        // fragmentoTextoOriginal=trampa;
 
-        Boe ultimoBoe = boeRepository.findTopByOrderByFechaBoeDesc();
+        Boe ultimoBoe = boeRepository.findTopByOrderByIdDesc();
+
+        //System.out.println("Fragmento original del ultimo boe registrado: "+ ultimoBoe.getTituloBoe());
+
+
         if(ultimoBoe==null){
             registrarBoe(textoPuro);
             System.out.println("ultimo boe es null");
         }
        else {
             //comprobar contenido del ultimo boe guardado con el obtenido ahora
-            if (fragmentoTextoOriginal.equals(ultimoBoe.getContenidoOriginal())) {
+            if (fragmentoTextoOriginal.equals(ultimoBoe.getTituloBoe())) {
                 System.out.println("Este boe ya esta registrado");
             } else {
 
@@ -156,7 +163,7 @@ public class BoeService {
 
         try {
             String resumen = resumirConChatGpt(textoPuro);
-            String fragmentoTextoOriginal = textoPuro.substring(8, 22);
+            String fragmentoTextoOriginal = textoPuro.substring(8, 21);
 
 
             System.out.println(fragmentoTextoOriginal);
@@ -178,7 +185,7 @@ public class BoeService {
 
             // Crear el objeto Boe
             Boe boe = new Boe();
-            boe.setContenidoOriginal(fragmentoTextoOriginal);
+            boe.setTituloBoe(fragmentoTextoOriginal);
             boe.setContenidoResumido(resumen);
             boe.setFechaBoe(fechaRegistro);
 
@@ -232,7 +239,7 @@ public class BoeService {
     private String resumirConChatGpt(String texto) {
         try {
             // Crear la solicitud a la API de OpenAI
-            ChatGptRequest request = new ChatGptRequest(model, "Resume por apartados: "+ texto);
+            ChatGptRequest request = new ChatGptRequest(model, "Resume por apartados indicando el numero de boe arriba y a contiuacion los apartados de: "+ texto);
 
             // Realizar la solicitud a la API de OpenAI
             ChatGptResponse response = template.postForObject(apiUrl, request, ChatGptResponse.class);
@@ -258,8 +265,14 @@ public class BoeService {
 
 
     public void noRecibidos( Long userId) {
+        //Metodo que implementa @Query de JPA
+        //List<Boe> boesNoRecibidos = boeUserRepo.findNotReceivedBoesByUserId(userId);
 
-        List<Boe> boesNoRecibidos = boeUserRepo.findNotReceivedBoesByUserId(userId);
+        //Metodo que implementa nuestra interfaz custom
+        List<Boe> boesNoRecibidos = boeUserRepo.customNoRecibidos(userId);
+
+        System.out.println("Test para noRecibidos de BoeService\n"+boesNoRecibidos.toString());
+
         StringBuilder boesAntiguos=new StringBuilder();
         if(!boesNoRecibidos.isEmpty()) {
             for(Boe boe:boesNoRecibidos){
@@ -283,6 +296,8 @@ public class BoeService {
         Boe boe = boeRepository.findByFechaBoe(fechaBoe);
 
         User usuario = userService.getUserById(userId);
+
+        registrarBoeUser(boe,userRepository.findAll() );
 
         // Envío de correo electrónico de confirmación
         String to = usuario.getEmail();

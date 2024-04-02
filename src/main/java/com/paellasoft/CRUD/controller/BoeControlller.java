@@ -64,7 +64,7 @@ public class BoeControlller {
             try {
 
                 boeService.noRecibidos(userId);
-
+                System.out.println("No recibidos en controller");
                 return ResponseEntity.ok("Lista de BOEs mandada a tu correo");
 
             } catch (Exception e) {

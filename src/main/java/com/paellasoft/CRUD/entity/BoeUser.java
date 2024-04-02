@@ -21,7 +21,13 @@ public class BoeUser {
     private Boe boe;
 
 
+
+    //private Long customNoRecibidos;
+
+
     private static  List<User> suscritos;
+
+
 
 
     public BoeUser (){
