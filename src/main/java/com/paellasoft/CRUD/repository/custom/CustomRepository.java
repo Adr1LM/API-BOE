@@ -25,13 +25,14 @@ public class CustomRepository implements ICustomRepository {
 
 
 
-        System.out.println("Test de uso del metodo custom");
+       /* System.out.println("Test de uso del metodo custom");
         String hql = "SELECT b FROM Boe b " +
                 "WHERE b NOT IN " +
                 "(SELECT bu.boe FROM BoeUser bu " +
                 "WHERE bu.user.id = :userId)";
         TypedQuery<Boe> query = entityManager.createQuery(hql, Boe.class);
         query.setParameter("userId", userId);
-        return query.getResultList();
+        return query.getResultList();*/
+        return null;
     }
 }

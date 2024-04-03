@@ -22,7 +22,7 @@ public class BoeUser {
 
 
 
-    //private Long customNoRecibidos;
+    private Long customNoRecibidos;
 
 
     private static  List<User> suscritos;
