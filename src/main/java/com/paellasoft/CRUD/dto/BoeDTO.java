@@ -1,55 +1,44 @@
 package com.paellasoft.CRUD.dto;
 
-import java.util.List;
+import com.paellasoft.CRUD.entity.Boe;
+//import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Entity;
+import lombok.*;
 
-public class BoeDTO {
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.io.Serializable;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class BoeDTO  {
+
     private Long id;
-    private String contenidoOriginal;
-    private String contenidoResumido;
+
+    private String tituloBoe;
+
     private String fechaBoe;
-    private List<BoeUserDTO> subscriptions;
 
-    // Constructor
-    public BoeDTO() {}
-
-    // Getters y Setters
-    public Long getId() {
-        return id;
+    //Metodo para pasar Boe a DTO
+    public static BoeDTO fromEntity(Boe boe) {
+        BoeDTO boeDTO = new BoeDTO();
+        boeDTO.setId(boe.getId());
+        boeDTO.setTituloBoe(boe.getTituloBoe());
+        boeDTO.setFechaBoe(boe.getFechaBoe());
+        return boeDTO;
     }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getContenidoOriginal() {
-        return contenidoOriginal;
-    }
-
-    public void setContenidoOriginal(String contenidoOriginal) {
-        this.contenidoOriginal = contenidoOriginal;
-    }
-
-    public String getContenidoResumido() {
-        return contenidoResumido;
-    }
-
-    public void setContenidoResumido(String contenidoResumido) {
-        this.contenidoResumido = contenidoResumido;
-    }
-
-    public String getFechaBoe() {
-        return fechaBoe;
-    }
-
-    public void setFechaBoe(String fechaBoe) {
-        this.fechaBoe = fechaBoe;
-    }
-
-    public List<BoeUserDTO> getSubscriptions() {
-        return subscriptions;
-    }
-
-    public void setSubscriptions(List<BoeUserDTO> subscriptions) {
-        this.subscriptions = subscriptions;
+    //Metodo para pasar DTO a Boe
+    public static Boe toEntity(BoeDTO boeDTO) {
+        Boe boe = new Boe();
+        boe.setId(boeDTO.getId());
+        boe.setTituloBoe(boeDTO.getTituloBoe());
+        boe.setFechaBoe(boeDTO.getFechaBoe());
+        return boe;
     }
 }

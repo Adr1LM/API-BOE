@@ -30,7 +30,7 @@ public class AuthController {
             String sessionId = String.valueOf(user.getId());
             // Devolver el ID de sesión en el encabezado de respuesta
             HttpHeaders headers = new HttpHeaders();
-            headers.add("Session-ID", sessionId);
+            headers.add("SessionID", sessionId);
             System.out.println(sessionId); // Imprimir sessionId en la consola
             return new ResponseEntity<>("Login successful", headers, HttpStatus.OK);
         } else {

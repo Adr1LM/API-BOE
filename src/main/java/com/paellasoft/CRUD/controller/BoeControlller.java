@@ -2,6 +2,8 @@ package com.paellasoft.CRUD.controller;
 
 import com.paellasoft.CRUD.chatGpt.ChatGptRequest;
 import com.paellasoft.CRUD.chatGpt.ChatGptResponse;
+import com.paellasoft.CRUD.dto.BoeDTO;
+import com.paellasoft.CRUD.entity.Boe;
 import com.paellasoft.CRUD.entity.User;
 import com.paellasoft.CRUD.service.AuthService;
 import com.paellasoft.CRUD.service.BoeService;
@@ -76,6 +78,22 @@ public class BoeControlller {
                     .body("Unauthorized access");
         }
     }
+
+
+
+        @GetMapping("/boe/dto/{id}")
+        public ResponseEntity<BoeDTO> obtenerBoePorId(@PathVariable Long id) {
+            Boe boe = boeService.enviarDto(id);
+            BoeDTO dto = BoeDTO.fromEntity(boe);
+
+
+            if (dto != null) {
+                return ResponseEntity.ok(dto);
+            }
+            return ResponseEntity.notFound().build();
+        }
+
+
 
     @GetMapping("/boe/solicitar")
     public ResponseEntity<String>  solicitarBoe (@RequestParam("userId") Long userId,@RequestParam("fechaBoe") String fechaBoe,

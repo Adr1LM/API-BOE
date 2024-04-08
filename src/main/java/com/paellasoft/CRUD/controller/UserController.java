@@ -1,5 +1,6 @@
 package com.paellasoft.CRUD.controller;
 
+import com.paellasoft.CRUD.dto.UserDTO;
 import com.paellasoft.CRUD.entity.User;
 import com.paellasoft.CRUD.service.AuthService;
 import com.paellasoft.CRUD.service.UserService;
@@ -79,6 +80,19 @@ public class UserController {
     public void deleteAllUsers(@RequestParam Long userId){
         userService.deleteAllUser();
     }
+
+    @GetMapping("/user/dto/{id}")
+    public ResponseEntity<UserDTO> obtenerUserPorId(@PathVariable Long id) {
+        Optional<User> optionalUser = Optional.ofNullable(userService.getUserById(id));
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            UserDTO userDTO = UserDTO.fromEntity(user);
+            return ResponseEntity.ok(userDTO);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
 
 
