@@ -72,7 +72,7 @@ public class EmailSender {
 
             InputStreamSource pdfResource = new ByteArrayResource(pdfBytes);
 
-            helper.setText("Estimado usuario,\n\nSe adjunta el resumen del BOE en formato PDF.\n\nAtentamente,\nEquipo de BoeApiSummary");
+            helper.setText("Estimado usuario,\n\nSe adjunta el/los resumen/es del BOE en formato PDF.\n\nAtentamente,\nEquipo de BoeApiSummary");
 
             helper.addAttachment("resumen_boe_"+LocalDate.now()+".pdf", pdfResource, "application/pdf");
 

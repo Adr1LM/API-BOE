@@ -275,10 +275,10 @@ public class BoeService {
 
     public void noRecibidos(Long userId) {
         //Metodo que implementa @Query de JPA
-        //List<Boe> boesNoRecibidos = boeUserRepo.findNotReceivedBoesByUserId(userId);
+        List<Boe> boesNoRecibidos = boeUserRepo.findNotReceivedBoesByUserId(userId);
 
         //Metodo que implementa nuestra interfaz custom
-        List<Boe> boesNoRecibidos = boeUserRepo.customNoRecibidos(userId);
+        //List<Boe> boesNoRecibidos = boeUserRepo.customNoRecibidos(userId);
 
         System.out.println("Test para noRecibidos de BoeService\n" + boesNoRecibidos.toString());
 
@@ -290,17 +290,22 @@ public class BoeService {
             }
             User usuario = userService.getUserById(userId);
 
-            // Envío de correo electrónico de confirmación
+
             String to = usuario.getEmail();
-            String subject = "Tus BOE no recibidos";
-            String text = "Hola " + usuario.getUsername() + ", tus boes no recibidos:\n " + boesAntiguos;
-            emailSender.sendEmail(to, subject, text);
+            String subject = "BOEs NO recibidos:";
+            String text = "Estimado " + usuario.getUsername() + ",\n\n Aquí tienes tus BOEs no recibidos resumidos\n\n" + boesAntiguos;
+            String signatureImagePath = "src/main/resources/boe.png";
+            emailSender.sendEmailWithPdfAttachment(to, subject, text, signatureImagePath);
+
+
         }
 
 
     }
 
     public void enviarBoeSolicitado(Long userId, String fechaBoe) {
+
+        System.out.println(fechaBoe);
 
         Boe boe = boeRepository.findByFechaBoe(fechaBoe);
 
@@ -309,10 +314,17 @@ public class BoeService {
         registrarBoeUser(boe, userRepository.findAll());
 
         // Envío de correo electrónico de confirmación
+
         String to = usuario.getEmail();
+        String subject = "Aquí tienes tu BOE solicitado:";
+        String text = "Estimado " + usuario.getUsername() + ",\n\n Para Leer el Boe de ese día, acceda a la pagina web:\nhttps://www.boe.es/boe/dias/" + String.format(fechaBoe, formatter) + "\n\n" + boe.toString();
+        String signatureImagePath = "src/main/resources/boe.png";
+        emailSender.sendEmailWithPdfAttachment(to, subject, text, signatureImagePath);
+
+       /* String to = usuario.getEmail();
         String subject = "Tu Boe solicitado.";
         String text = "Hola " + usuario.getUsername() + ", tu boe solicitado:\n " + boe.toString();
-        emailSender.sendEmail(to, subject, text);
+        emailSender.sendEmail(to, subject, text);*/
 
     }
 

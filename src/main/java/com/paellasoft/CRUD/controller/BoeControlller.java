@@ -79,25 +79,9 @@ public class BoeControlller {
         }
     }
 
-
-
-        @GetMapping("/boe/dto/{id}")
-        public ResponseEntity<BoeDTO> obtenerBoePorId(@PathVariable Long id) {
-            Boe boe = boeService.enviarDto(id);
-            BoeDTO dto = BoeDTO.fromEntity(boe);
-
-
-            if (dto != null) {
-                return ResponseEntity.ok(dto);
-            }
-            return ResponseEntity.notFound().build();
-        }
-
-
-
     @GetMapping("/boe/solicitar")
     public ResponseEntity<String>  solicitarBoe (@RequestParam("userId") Long userId,@RequestParam("fechaBoe") String fechaBoe,
-                                                           @RequestHeader("Session-Id") String sessionId) {
+                                                 @RequestHeader("Session-Id") String sessionId) {
         if (authService.validarSesion(userId, sessionId)){
             try {
 
@@ -115,5 +99,22 @@ public class BoeControlller {
                     .body("Unauthorized access");
         }
     }
+
+
+        @GetMapping("/boe/dto/{id}")
+        public ResponseEntity<BoeDTO> obtenerBoePorId(@PathVariable Long id) {
+            Boe boe = boeService.enviarDto(id);
+            BoeDTO dto = BoeDTO.fromEntity(boe);
+
+
+            if (dto != null) {
+                return ResponseEntity.ok(dto);
+            }
+            return ResponseEntity.notFound().build();
+        }
+
+
+
+
 
 }
