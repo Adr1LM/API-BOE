@@ -64,7 +64,7 @@ public class BoeService {
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     private String fechaFormateada = fechaActual.format(formatter);
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 * * * * *")  // cron para comprobar nuevo BOE cada minuto
     public String obtenerBoeDelDia() {
         // Construir la URL del BOE del día actual
         String urlSeccion1 = "https://www.boe.es/boe/dias/" + fechaFormateada + "/index.php?s=1";
@@ -303,13 +303,13 @@ public class BoeService {
 
     }
 
-    public void enviarBoeSolicitado(Long userId, String fechaBoe) {
+    public void enviarBoeSolicitado(Long id, String fechaBoe) {
 
         System.out.println(fechaBoe);
 
         Boe boe = boeRepository.findByFechaBoe(fechaBoe);
 
-        User usuario = userService.getUserById(userId);
+        User usuario = userService.getUserById(id);
 
         registrarBoeUser(boe, userRepository.findAll());
 
@@ -321,10 +321,6 @@ public class BoeService {
         String signatureImagePath = "src/main/resources/boe.png";
         emailSender.sendEmailWithPdfAttachment(to, subject, text, signatureImagePath);
 
-       /* String to = usuario.getEmail();
-        String subject = "Tu Boe solicitado.";
-        String text = "Hola " + usuario.getUsername() + ", tu boe solicitado:\n " + boe.toString();
-        emailSender.sendEmail(to, subject, text);*/
 
     }
 

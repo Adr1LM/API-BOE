@@ -47,14 +47,7 @@ public class UserService {
         emailSender.sendEmail(to, subject, text);
     }
 
-    public User authenticate(String username, String password) {
-        User user = userRepository.findByUsername(username);
-        if (user != null && user.getPassword().matches(password)) {
-            return user;
-        } else {
-            return null;
-        }
-    }
+
 
     @Transactional
     public void suscribirUsuario(Long userId) {
